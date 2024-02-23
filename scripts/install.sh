@@ -26,13 +26,13 @@ readonly G_EXT_CROSS_COMPILER_LINK="${G_VARISCITE_URL}/Android/Android_iMX8_Q100
 readonly C_LANG_LINK="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86"
 readonly C_LANG_DIR="/opt/prebuilt-android-clang-var-0fc0715d9392c/"
 
-readonly BASE_BRANCH_NAME="android-13.0.0_1.0.0"
+readonly BASE_BRANCH_NAME="android-14.0.0_1.0.0"
 
 ## git variables get from base script!
-readonly _EXTPARAM_BRANCH="android-13.0.0_1.0.0-var01"
+readonly _EXTPARAM_BRANCH="android-14.0.0_1.0.0-var01"
 
 # Android TAG from release notes
-readonly ANDROID_TAG="android-13.0.0_r7"
+readonly ANDROID_TAG="android-14.0.0_r17"
 ## dirs ##
 readonly VARISCITE_PATCHS_DIR="${SCRIPT_POINT}/platform"
 readonly VARISCITE_SH_DIR="${SCRIPT_POINT}/sh"
