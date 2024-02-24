@@ -16,10 +16,10 @@ Signed-off-by: Pierluigi Passaro <pierluigi.p@variscite.com>
  2 files changed, 8 insertions(+), 7 deletions(-)
 
 diff --git a/common/build/Makefile b/common/build/Makefile
-index b4449a58..2be673c7 100644
+index ae046dbc..5d58adf4 100644
 --- a/common/build/Makefile
 +++ b/common/build/Makefile
-@@ -12,8 +12,8 @@ include ${soc_path}/UbootKernelCommonConfig.mk
+@@ -15,8 +15,8 @@ include ${soc_path}/UbootKernelCommonConfig.mk
  include ${product_path}/SharedBoardConfig.mk
  include ${product_path}/UbootKernelBoardConfig.mk
  
@@ -27,14 +27,14 @@ index b4449a58..2be673c7 100644
 -include ${nxp_git_path}/common/build/uboot.mk
 +include ${nxp_git_path}/../nxp/common/build/kernel.mk
 +include ${nxp_git_path}/../nxp/common/build/uboot.mk
- -include ${product_path}/AndroidUboot.mk
  -include ${product_path}/AndroidTee.mk
  -include ${GPU_VIV6_PATH}/gpu-viv6/driver/hal/kernel/galcore.mk
+ -include ${VVCAM_PATH}/vvcam/vvcam.mk
 diff --git a/common/tools/imx-make.sh b/common/tools/imx-make.sh
-index 9fa70244..c91ae0e8 100755
+index c2cb5654..8b802753 100755
 --- a/common/tools/imx-make.sh
 +++ b/common/tools/imx-make.sh
-@@ -140,10 +140,11 @@ if [ -n "${build_kernel_modules}" ]; then
+@@ -141,10 +141,13 @@ if [ -n "${build_kernel_modules}" ]; then
      build_kernel_oot_module_flag=1;
  fi
  
@@ -43,11 +43,13 @@ index 9fa70244..c91ae0e8 100755
  product_path=${product_makefile%/*}
  soc_path=${product_path%/*}
  nxp_git_path=${soc_path%/*}
-+export AARCH64_GCC_CROSS_COMPILE=$ANDROID_BUILD_TOP/prebuilts/gcc/linux-x86/aarch64/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu/bin/aarch64-linux-gnu-
- 
- # if uboot is to be compiled, remove the UBOOT_COLLECTION directory
- if [ -n "${build_bootloader}" ]; then
-@@ -152,7 +153,7 @@ fi
++export AARCH64_GCC_CROSS_COMPILE=$ANDROID_BUILD_TOP/prebuilts/gcc/linux-x86/aarch64/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-
++export PATH=/opt/prebuilt-android-kernel-build-tools-var-e3f6a8c059b94/linux-x86/bin:$PATH
++export CLANG_PATH=/opt/prebuilt-android-clang-var-d20e409261d6a
+
+ if [ -n "${build_kernel_modules}" ] && [ ${TARGET_PRODUCT} = "mek_8q" ]; then
+     make -f ${nxp_git_path}/common/build/encrypt_and_sign_firmware.mk manifest build encrypt sign clean< /dev/null || exit
+@@ -158,7 +161,7 @@ fi
  
  # redirect standard input to /dev/null to avoid manually input in kernel configuration stage
  soc_path=${soc_path} product_path=${product_path} nxp_git_path=${nxp_git_path} clean_build=${clean_build} \
@@ -56,7 +58,7 @@ index 9fa70244..c91ae0e8 100755
      ${build_bootloader} ${build_kernel} </dev/null || exit
  # in the execution of this script, if the kernel build env is cleaned or configured, do not trigger that again
  if [ -n "${build_kernel}" ]; then
-@@ -162,21 +163,21 @@ fi
+@@ -168,21 +171,21 @@ fi
  
  if [ -n "${build_kernel_modules}" ]; then
      soc_path=${soc_path} product_path=${product_path} nxp_git_path=${nxp_git_path} clean_build=${clean_build} \
@@ -83,4 +85,3 @@ index 9fa70244..c91ae0e8 100755
  
 -- 
 2.34.1
-
