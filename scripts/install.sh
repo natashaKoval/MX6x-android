@@ -26,10 +26,10 @@ readonly G_EXT_CROSS_COMPILER_LINK="${G_VARISCITE_URL}/Android/Android_iMX8_Q100
 readonly C_LANG_LINK="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86"
 readonly C_LANG_DIR="/opt/prebuilt-android-clang-var-bceb7274dda5b/"
 
-readonly BASE_BRANCH_NAME="android-12.0.0_1.0.0"
+readonly BASE_BRANCH_NAME="android-14.0.0_1.0.0"
 
 ## git variables get from base script!
-readonly _EXTPARAM_BRANCH="android-12.0.0_1.0.0-var01"
+readonly _EXTPARAM_BRANCH="android-14.0.0_1.0.0-var01"
 
 ## dirs ##
 readonly VARISCITE_PATCHS_DIR="${SCRIPT_POINT}/platform"
@@ -165,10 +165,10 @@ for _ddd in ${git_array}
 do
 	_git_p=$(echo ${_ddd} | sed 's/.git//g')
 	cd ${ANDROID_DIR}/${_git_p}/ > /dev/null
-	
+
 	if [[ `git branch --list $_EXTPARAM_BRANCH` ]] ; then
 		if [[ ${PWD} == ${LIBBT} ]] || [[ ${PWD} == ${SEPOLICY} ]]; then
-			git checkout tags/android-12.0.0_r26
+			git checkout tags/android-14.0.0_r17
 		else
 			git checkout tags/${BASE_BRANCH_NAME}
 		fi
