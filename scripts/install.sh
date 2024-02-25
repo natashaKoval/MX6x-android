@@ -200,10 +200,11 @@ pr_info "#######################"
 # get arm toolchain
 (( `ls ${G_CROSS_COMPILER_PATH} 2>/dev/null | wc -l` == 0 )) && {
 	pr_info "Get and unpack cross compiler";
-	cd ${ANDROID_DIR}/prebuilts/gcc/linux-x86/aarch64/
-	wget ${G_EXT_CROSS_COMPILER_LINK}
-	tar -xJf ${G_CROSS_COMPILER_ARCHIVE} \
-		-C .
+	mkdir -p ${ANDROID_DIR}/prebuilts/gcc/linux-x86/aarch64
+	#cd ${ANDROID_DIR}/prebuilts/gcc/linux-x86/aarch64/
+	#wget ${G_EXT_CROSS_COMPILER_LINK}
+	#tar -xJf ${G_CROSS_COMPILER_ARCHIVE} \
+	#	-C .
 };
 
 pr_info "#######################"
