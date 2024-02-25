@@ -25,6 +25,8 @@ readonly G_VARISCITE_URL="https://variscite-public.nyc3.cdn.digitaloceanspaces.c
 readonly G_EXT_CROSS_COMPILER_LINK="${G_VARISCITE_URL}/Android/Android_iMX8_Q1000_230/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu.tar.xz"
 readonly C_LANG_LINK="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86"
 readonly C_LANG_DIR="/opt/prebuilt-android-clang-var-d20e409261d6a/"
+readonly KERNEL_BUILD_TOOLS_LINK="https://android.googlesource.com/kernel/prebuilts/build-tools"
+readonly KERNEL_BUILD_TOOLS_DIR="/opt/prebuilt-android-kernel-build-tools-var-e3f6a8c059b94"
 
 readonly BASE_BRANCH_NAME="android-14.0.0_1.0.0"
 
@@ -218,6 +220,16 @@ fi
 
 if [[ ! -z $SC_MX8_FAMILY ]] ; then
 	scfw_tools_setup ${SC_MX8_FAMILY}
+fi
+
+pr_info "############################"
+pr_info "# kernel-build-tools setup #"
+pr_info "############################"
+
+if [[ ! -d ${KERNEL_BUILD_TOOLS_DIR} ]] ; then
+        sudo git clone ${KERNEL_BUILD_TOOLS_LINK} ${KERNEL_BUILD_TOOLS_DIR}
+        cd ${KERNEL_BUILD_TOOLS_DIR}
+        sudo git checkout e3f6a8c059b94f30f7184a7d335876f8a13a2366
 fi
 
 pr_info "#####################"
