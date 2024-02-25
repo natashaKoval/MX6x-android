@@ -1,19 +1,24 @@
-From b010d04f7d366e98269b53c88006627f20c1be3a Mon Sep 17 00:00:00 2001
-From: mohit <mohit.p@variscite.com>
-Date: Fri, 12 Nov 2021 10:17:13 -0800
-Subject: [PATCH 3/3] imx8mm: Remove uart2 and uart4 domain restrictions
+From 0bb9ecb54de1ac0d67a0a8abdf85a1fd4a6392d1 Mon Sep 17 00:00:00 2001
+From: Nate Drude <nate.d@variscite.com>
+Date: Fri, 28 Aug 2020 13:07:29 -0500
+Subject: [PATCH 6/7] imx8mm: Remove uart2 and uart4 domain restrictions
 
 i.MX8MM ATF code assigns UART2 to the A53 Domain and UART4 to the M4 domain.
 Remove these assignments to allow for usage in either domain.
+
+Signed-off-by: Nate Drude <nate.d@variscite.com>
+Signed-off-by: Marco Contenti <marco.c@variscite.com>
+(cherry picked from commit 8596e6917fb4e70b42f3c24abc43f544ccc49e05)
+(cherry picked from commit 670ee370ec543e89dde0b0be5065d9c16c6041bb)
 ---
  plat/imx/imx8m/imx8mm/imx8mm_bl31_setup.c | 3 ---
  1 file changed, 3 deletions(-)
 
 diff --git a/plat/imx/imx8m/imx8mm/imx8mm_bl31_setup.c b/plat/imx/imx8m/imx8mm/imx8mm_bl31_setup.c
-index b5733513b..31c060e0a 100644
+index e08581347..1e5556271 100644
 --- a/plat/imx/imx8m/imx8mm/imx8mm_bl31_setup.c
 +++ b/plat/imx/imx8m/imx8mm/imx8mm_bl31_setup.c
-@@ -61,9 +61,6 @@ static const struct imx_rdc_cfg rdc[] = {
+@@ -116,9 +116,6 @@ static const struct imx_rdc_cfg rdc[] = {
  	RDC_MDAn(RDC_MDA_M4, DID1),
  
  	/* peripherals domain permission */
@@ -24,5 +29,5 @@ index b5733513b..31c060e0a 100644
  	/* memory region */
  
 -- 
-2.25.1
+2.34.1
 

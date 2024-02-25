@@ -1,0 +1,32 @@
+From eb38ca9ba352013e4dc4ee518298e622a6119bb0 Mon Sep 17 00:00:00 2001
+From: FrancescoFerraro <francesco.f@variscite.com>
+Date: Thu, 30 Dec 2021 19:32:12 +0100
+Subject: [PATCH 4/7] plat: imx8mn: Add D1W permission to fix M7 start failure
+
+Without this patch the M7 doesen't start causing kernel boot failure
+The issue is introduced by commit 32f8832e8c7360510061c90318742b781f58a1f6
+
+Cherry-picked from: b0da4e18171c
+
+Signed-off-by: FrancescoFerraro <francesco.f@variscite.com>
+Signed-off-by: Marco Contenti <marco.c@variscite.com>
+---
+ plat/imx/imx8m/imx8mn/imx8mn_bl31_setup.c | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/plat/imx/imx8m/imx8mn/imx8mn_bl31_setup.c b/plat/imx/imx8m/imx8mn/imx8mn_bl31_setup.c
+index 9d1e562ad..db3c5c46b 100644
+--- a/plat/imx/imx8m/imx8mn/imx8mn_bl31_setup.c
++++ b/plat/imx/imx8m/imx8mn/imx8mn_bl31_setup.c
+@@ -108,7 +108,7 @@ static const struct imx_rdc_cfg rdc[] = {
+ 	RDC_MDAn(RDC_MDA_M7, DID1),
+ 
+ 	/* peripherals domain permission */
+-	RDC_PDAPn(RDC_PDAP_RDC, D0R | D0W | D1R),
++	RDC_PDAPn(RDC_PDAP_RDC, D0R | D0W | D1R | D1W),
+ 
+ 	/* memory region */
+ 	RDC_MEM_REGIONn(16, 0x0, 0x0, 0xff),
+-- 
+2.34.1
+

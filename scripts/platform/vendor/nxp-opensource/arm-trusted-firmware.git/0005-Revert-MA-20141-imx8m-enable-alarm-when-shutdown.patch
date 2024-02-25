@@ -1,0 +1,76 @@
+From 66a18dd635cf959816f4ddd109e2bb77724d5591 Mon Sep 17 00:00:00 2001
+From: Alifer Moraes <alifer.m@variscite.com>
+Date: Thu, 21 Sep 2023 09:41:04 -0300
+Subject: [PATCH 5/7] Revert "MA-20141 imx8m: enable alarm when shutdown"
+
+This reverts commit 4fe65a006b2b0a95f3f1d17e782a92732932325f.
+
+This revert fixes the poweroff and shutdown commands issue
+for imx8m, imx8mm and imx8mn avoiding the reboot after running
+poweroff or shutdown commands from linux userspace.
+
+Derived from commit 5cf21f5ded3e.
+
+Signed-off-by: Alifer Moraes <alifer.m@variscite.com>
+---
+ plat/imx/imx8m/imx8mm/include/platform_def.h | 2 --
+ plat/imx/imx8m/imx8mn/include/platform_def.h | 2 --
+ plat/imx/imx8m/imx8mp/include/platform_def.h | 2 --
+ plat/imx/imx8m/imx8mq/include/platform_def.h | 2 --
+ 4 files changed, 8 deletions(-)
+
+diff --git a/plat/imx/imx8m/imx8mm/include/platform_def.h b/plat/imx/imx8m/imx8mm/include/platform_def.h
+index 430164d2c..b3a008f6a 100644
+--- a/plat/imx/imx8m/imx8mm/include/platform_def.h
++++ b/plat/imx/imx8m/imx8mm/include/platform_def.h
+@@ -160,8 +160,6 @@
+ 
+ #define SNVS_LPCR			U(0x38)
+ #define SNVS_LPCR_SRTC_ENV		BIT(0)
+-#define SNVS_LPCR_LPTA_EN		BIT(1)
+-#define SNVS_LPCR_LPWUI_EN		BIT(3)
+ #define SNVS_LPCR_DP_EN			BIT(5)
+ #define SNVS_LPCR_TOP			BIT(6)
+ 
+diff --git a/plat/imx/imx8m/imx8mn/include/platform_def.h b/plat/imx/imx8m/imx8mn/include/platform_def.h
+index 5147dfea8..90f9175e7 100644
+--- a/plat/imx/imx8m/imx8mn/include/platform_def.h
++++ b/plat/imx/imx8m/imx8mn/include/platform_def.h
+@@ -135,8 +135,6 @@
+ 
+ #define SNVS_LPCR			U(0x38)
+ #define SNVS_LPCR_SRTC_ENV		BIT(0)
+-#define SNVS_LPCR_LPTA_EN		BIT(1)
+-#define SNVS_LPCR_LPWUI_EN		BIT(3)
+ #define SNVS_LPCR_DP_EN			BIT(5)
+ #define SNVS_LPCR_TOP			BIT(6)
+ 
+diff --git a/plat/imx/imx8m/imx8mp/include/platform_def.h b/plat/imx/imx8m/imx8mp/include/platform_def.h
+index 46862f732..4b3713d11 100644
+--- a/plat/imx/imx8m/imx8mp/include/platform_def.h
++++ b/plat/imx/imx8m/imx8mp/include/platform_def.h
+@@ -174,8 +174,6 @@
+ 
+ #define SNVS_LPCR			U(0x38)
+ #define SNVS_LPCR_SRTC_ENV		BIT(0)
+-#define SNVS_LPCR_LPTA_EN		BIT(1)
+-#define SNVS_LPCR_LPWUI_EN		BIT(3)
+ #define SNVS_LPCR_DP_EN			BIT(5)
+ #define SNVS_LPCR_TOP			BIT(6)
+ 
+diff --git a/plat/imx/imx8m/imx8mq/include/platform_def.h b/plat/imx/imx8m/imx8mq/include/platform_def.h
+index 95837ea55..288988f0f 100644
+--- a/plat/imx/imx8m/imx8mq/include/platform_def.h
++++ b/plat/imx/imx8m/imx8mq/include/platform_def.h
+@@ -127,8 +127,6 @@
+ 
+ #define SNVS_LPCR			U(0x38)
+ #define SNVS_LPCR_SRTC_ENV		BIT(0)
+-#define SNVS_LPCR_LPTA_EN		BIT(1)
+-#define SNVS_LPCR_LPWUI_EN		BIT(3)
+ #define SNVS_LPCR_DP_EN			BIT(5)
+ #define SNVS_LPCR_TOP			BIT(6)
+ 
+-- 
+2.34.1
+

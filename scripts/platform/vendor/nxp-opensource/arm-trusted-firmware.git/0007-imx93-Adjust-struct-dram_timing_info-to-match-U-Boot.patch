@@ -1,0 +1,33 @@
+From 8b55a2024b405fabba8821deda772584cd2b0c13 Mon Sep 17 00:00:00 2001
+From: Ken Sloat <ken.s@variscite.com>
+Date: Thu, 21 Sep 2023 14:46:59 -0400
+Subject: [PATCH 7/7] imx93: Adjust struct dram_timing_info to match U-Boot
+
+ATF struct dram_timing_info holds DRAM configuration created by
+u-boot. Variscite U-Boot code added an additional member to this
+structure.
+Make ATF definition mirror the U-Boot one.
+
+Derived from: https://github.com/varigit/imx-atf/commit/d8bc791fb5fc
+
+Signed-off-by: Ken Sloat <ken.s@variscite.com>
+---
+ plat/imx/imx93/include/dram.h | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/plat/imx/imx93/include/dram.h b/plat/imx/imx93/include/dram.h
+index ccb9ef3bb..4f5696e29 100644
+--- a/plat/imx/imx93/include/dram.h
++++ b/plat/imx/imx93/include/dram.h
+@@ -37,6 +37,8 @@ struct dram_fsp_cfg{
+ };
+ 
+ struct dram_timing_info {
++	/* ddrphy firmware offset */
++	unsigned int ddrphy_fw_offset;
+ 	/* umctl2 config */
+ 	struct dram_cfg_param *ddrc_cfg;
+ 	unsigned int ddrc_cfg_num;
+-- 
+2.34.1
+
