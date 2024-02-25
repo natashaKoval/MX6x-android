@@ -24,7 +24,7 @@ readonly G_CROSS_COMPILER_ARCHIVE=gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu.t
 readonly G_VARISCITE_URL="https://variscite-public.nyc3.cdn.digitaloceanspaces.com"
 readonly G_EXT_CROSS_COMPILER_LINK="${G_VARISCITE_URL}/Android/Android_iMX8_Q1000_230/gcc-arm-8.3-2019.03-x86_64-aarch64-linux-gnu.tar.xz"
 readonly C_LANG_LINK="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86"
-readonly C_LANG_DIR="/opt/prebuilt-android-clang-var-bceb7274dda5b/"
+readonly C_LANG_DIR="/opt/prebuilt-android-clang-var-d20e409261d6a/"
 
 readonly BASE_BRANCH_NAME="android-14.0.0_1.0.0"
 
@@ -207,12 +207,12 @@ pr_info "#######################"
 };
 
 pr_info "#######################"
-pr_info "# Clang setup #"
+pr_info "# Clang setup         #"
 pr_info "#######################"
 if [[ ! -d ${C_LANG_DIR} ]] ; then
 	sudo git clone ${C_LANG_LINK} ${C_LANG_DIR} -b master
 	cd ${C_LANG_DIR}
-	sudo git checkout bceb7274dda5bb587a5473058bd9f52e678dde98
+	sudo git checkout d20e409261d6ad80a0c29ac2055bf5c3bb996ef4
 fi
 
 if [[ ! -z $SC_MX8_FAMILY ]] ; then
