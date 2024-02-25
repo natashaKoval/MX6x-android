@@ -4,14 +4,14 @@ Date: Fri, 29 Oct 2021 11:37:04 -0700
 Subject: [PATCH] imx-mkimage: imx8m: soc.mak: add variscite imx8mm support
 
 ---
- iMX8M/soc.mak | 27 +++++++++++++++++++++++++++
- 1 file changed, 27 insertions(+)
+ iMX8M/soc.mak | 26 ++++++++++++++++++++++++++
+ 1 file changed, 26 insertions(+)
 
 diff --git a/iMX8M/soc.mak b/iMX8M/soc.mak
-index 4bfdc37..52a58a8 100644
+index baf687e..bac7c85 100644
 --- a/iMX8M/soc.mak
 +++ b/iMX8M/soc.mak
-@@ -116,6 +116,22 @@ u-boot-spl-ddr4.bin: u-boot-spl.bin $(ddr4_imem_1d) $(ddr4_dmem_1d) $(ddr4_imem_
+@@ -126,6 +126,21 @@ u-boot-spl-ddr4.bin: u-boot-spl.bin $(ddr4_imem_1d) $(ddr4_dmem_1d) $(ddr4_imem_
  	@cat u-boot-spl-pad.bin ddr4_1d_fw.bin ddr4_2d_fw.bin > u-boot-spl-ddr4.bin
  	@rm -f u-boot-spl-pad.bin ddr4_1d_fw.bin ddr4_2d_fw.bin ddr4_imem_1d_pad.bin ddr4_dmem_1d_pad.bin ddr4_imem_2d_pad.bin
  
@@ -30,12 +30,11 @@ index 4bfdc37..52a58a8 100644
 +	@cat u-boot-spl.bin lpddr4_pmu_train_1d_fw.bin lpddr4_pmu_train_2d_fw.bin ddr4_1d_fw.bin ddr4_2d_fw.bin > u-boot-spl-lpddr4-ddr4.bin
 +	@rm -f ddr4_1d_fw.bin ddr4_2d_fw.bin ddr4_imem_1d_pad.bin ddr4_dmem_1d_pad.bin ddr4_imem_2d_pad.bin lpddr4_pmu_train_1d_fw.bin lpddr4_pmu_train_2d_fw.bin lpddr4_pmu_train_1d_imem_pad.bin lpddr4_pmu_train_1d_dmem_pad.bin lpddr4_pmu_train_2d_imem_pad.bin lpddr4_pmu_train_2d_dmem_pad.bin
 +
-+
  ddr3_imem_1d = ddr3_imem_1d$(DDR_FW_VERSION).bin
  ddr3_dmem_1d = ddr3_dmem_1d$(DDR_FW_VERSION).bin
  
-@@ -199,6 +215,12 @@ u-boot-ddr4-evk.itb: $(dtb_ddr4_evk)
- 	./mkimage_uboot -E -p 0x3000 -f u-boot-ddr4-evk.its u-boot-ddr4-evk.itb
+@@ -211,6 +226,12 @@ u-boot-ddr4-evk.itb: $(dtb_ddr4_evk) $(supp_dtbs)
+ 	./mkimage_uboot -E -p $(FIT_EXTERNAL_POSITION) -f u-boot-ddr4-evk.its u-boot-ddr4-evk.itb
  	@rm -f u-boot.its $(dtb_ddr4_evk)
  
 +dtbs_lpddr4_ddr4_evk = $(PLAT)-var-dart-customboard.dtb $(PLAT)-var-som-symphony.dtb
@@ -47,7 +46,7 @@ index 4bfdc37..52a58a8 100644
  ifeq ($(HDMI),yes)
  flash_evk: $(MKIMG) signed_hdmi_imx8m.bin u-boot-spl-ddr.bin u-boot.itb
  	./mkimage_imx8 -fit -signed_hdmi signed_hdmi_imx8m.bin -loader u-boot-spl-ddr.bin $(SPL_LOAD_ADDR) -second_loader u-boot.itb 0x40200000 0x60000 -out $(OUTIMG)
-@@ -226,6 +248,8 @@ flash_evk_emmc_fastboot: flash_evk_no_hdmi_emmc_fastboot
+@@ -238,6 +259,8 @@ flash_evk_emmc_fastboot: flash_evk_no_hdmi_emmc_fastboot
  
  flash_ddr4_evk: flash_ddr4_evk_no_hdmi
  
@@ -56,7 +55,7 @@ index 4bfdc37..52a58a8 100644
  flash_ddr3l_evk: flash_ddr3l_evk_no_hdmi
  
  flash_ddr3l_val: flash_ddr3l_val_no_hdmi
-@@ -272,6 +296,9 @@ flash_ddr4_evk_flexspi: $(MKIMG) u-boot-spl-ddr4.bin u-boot-ddr4-evk.itb
+@@ -318,6 +341,9 @@ flash_ddr4_evk_flexspi: $(MKIMG) u-boot-spl-ddr4.bin u-boot-ddr4-evk.itb
  	./mkimage_imx8 -version $(VERSION) -dev flexspi -fit -loader u-boot-spl-ddr4.bin $(SPL_FSPI_LOAD_ADDR) -second_loader u-boot-ddr4-evk.itb 0x40200000 0x60000 -out $(OUTIMG)
  	./$(QSPI_PACKER) $(QSPI_HEADER)
  
