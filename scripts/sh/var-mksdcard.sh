@@ -183,7 +183,8 @@ fi
 
 if [[ "${soc_name}" = *"mx8mp"* ]]; then
 	bootloader_offset=32
-	bootloader_file="u-boot-imx8mp-var-dart.imx"
+	bootloader_file=spl-imx8mp-var-dart-dual.bin
+	uboot_proper_file=bootloader-imx8mp-var-dart-dual.img
 fi
 
 if [[ "${soc_name}" = *"mx8qx"* ]]; then
@@ -221,7 +222,7 @@ fi
 seprate=100
 total_size=`sfdisk -s ${node}`
 total_size=`expr ${total_size} \/ 1024`
-boot_rom_sizeb=`expr ${BOOTLOAD_RESERVE} + ${MCU_OS_BOOT_SIZE} + ${DTBO_ROM_SIZE} \* 2 + ${BOOT_ROM_SIZE} \* 2 + ${INIT_BOOT_SIZE} \* 2 + ${VENDOR_BOOT_SIZE} \* 2`
+boot_rom_sizeb=`expr ${BOOTLOAD_RESERVE} \* 2 + ${MCU_OS_BOOT_SIZE} + ${DTBO_ROM_SIZE} \* 2 + ${BOOT_ROM_SIZE} \* 2 + ${INIT_BOOT_SIZE} \* 2 + ${VENDOR_BOOT_SIZE} \* 2`
 
 if [[ "${dynamic_img}" = true ]]; then
 	if [[ "${soc_name}" = *"mx8qm"* ]]; then
@@ -238,7 +239,8 @@ data_size=`expr ${total_size} - ${boot_rom_sizeb} - ${extend_size}`
 # Echo partitions
 cat << EOF
 TOTAL            : ${total_size} MiB
-U-BOOT (on eMMC) : ${BOOTLOAD_RESERVE} MiB
+BOOTLOADER_A     : ${BOOTLOAD_RESERVE} MiB
+BOOTLOADER_B     : ${BOOTLOAD_RESERVE} MiB
 DTBO_A           : ${DTBO_ROM_SIZE} MiB
 DTBO_B           : ${DTBO_ROM_SIZE} MiB
 BOOT_A           : ${BOOT_ROM_SIZE} MiB
@@ -276,6 +278,11 @@ function check_images
 		red_bold_echo "ERROR: ${bootloader_file} image does not exist"
 		exit 1
 	fi
+
+	if [[ ! -f ${imagesdir}/${uboot_proper_file} ]] ; then
+                red_bold_echo "ERROR: ${uboot_proper_file} image does not exist"
+                exit 1
+        fi
 
 	if [[ ! -f ${imagesdir}/${init_boot_file} ]] ; then
 		red_bold_echo "ERROR: ${init_boot_file} image does not exist"
@@ -364,43 +371,45 @@ function create_parts
 	echo
 	blue_underlined_bold_echo "Creating Android partitions"
 
-	MCU_OFFSET=`expr ${BOOTLOAD_RESERVE} + ${MCU_OS_BOOT_SIZE}`
-	sgdisk -n 1:${MCU_OFFSET}M:+${DTBO_ROM_SIZE}M         -c 1:"dtbo_a"         -t 1:8300  $node
-	sgdisk -n 2:0:+${DTBO_ROM_SIZE}M                      -c 2:"dtbo_b"         -t 2:8300  $node
-	sgdisk -n 3:0:+${BOOT_ROM_SIZE}M                      -c 3:"boot_a"         -t 3:8300  $node
-	sgdisk -n 4:0:+${BOOT_ROM_SIZE}M                      -c 4:"boot_b"         -t 4:8300  $node
-	sgdisk -n 5:0:+${INIT_BOOT_SIZE}M                     -c 5:"init_boot_a"    -t 5:8300  $node
-	sgdisk -n 6:0:+${INIT_BOOT_SIZE}M                     -c 6:"init_boot_b"    -t 6:8300  $node
-	sgdisk -n 7:0:+${VENDOR_BOOT_SIZE}M                   -c 7:"vendor_boot_a"  -t 7:8300  $node
-	sgdisk -n 8:0:+${VENDOR_BOOT_SIZE}M                   -c 8:"vendor_boot_b"  -t 8:8300  $node
+	MCU_OFFSET=`expr ${mcu_image_offset} / 1024 + ${MCU_OS_BOOT_SIZE}`
+	sgdisk -n 1:${MCU_OFFSET}M:+${BOOTLOAD_RESERVE}M      -c 1:"bootloader_a"   -t 1:8300   $node
+	sgdisk -n 2:0:+${BOOTLOAD_RESERVE}M                   -c 2:"bootloader_b"   -t 2:8300   $node
+	sgdisk -n 3:0:+${DTBO_ROM_SIZE}M                      -c 3:"dtbo_a"         -t 3:8300   $node
+	sgdisk -n 4:0:+${DTBO_ROM_SIZE}M                      -c 4:"dtbo_b"         -t 4:8300   $node
+	sgdisk -n 5:0:+${BOOT_ROM_SIZE}M                      -c 5:"boot_a"         -t 5:8300   $node
+	sgdisk -n 6:0:+${BOOT_ROM_SIZE}M                      -c 6:"boot_b"         -t 6:8300   $node
+	sgdisk -n 7:0:+${INIT_BOOT_SIZE}M                     -c 7:"init_boot_a"    -t 7:8300   $node
+	sgdisk -n 8:0:+${INIT_BOOT_SIZE}M                     -c 8:"init_boot_b"    -t 8:8300   $node
+	sgdisk -n 9:0:+${VENDOR_BOOT_SIZE}M                   -c 9:"vendor_boot_a"  -t 9:8300   $node
+	sgdisk -n 10:0:+${VENDOR_BOOT_SIZE}M                  -c 10:"vendor_boot_b" -t 10:8300  $node
 	if [[ "${dynamic_img}" = false ]]; then
-		sgdisk -n 9:0:+${SYSTEM_ROM_SIZE}M            -c 9:"system_a"       -t 9:8300  $node
-		sgdisk -n 10:0:+${SYSTEM_ROM_SIZE}M           -c 10:"system_b"      -t 10:8300  $node
+		sgdisk -n 11:0:+${SYSTEM_ROM_SIZE}M           -c 11:"system_a"      -t 11:8300  $node
+		sgdisk -n 12:0:+${SYSTEM_ROM_SIZE}M           -c 12:"system_b"      -t 12:8300  $node
+		sgdisk -n 13:0:+${MISC_SIZE}M                 -c 13:"misc"          -t 13:8300  $node
+		sgdisk -n 14:0:+${METADATA_SIZE}M             -c 14:"metadata"      -t 14:8300  $node
+		sgdisk -n 15:0:+${PRESISTDATA_SIZE}M          -c 15:"presistdata"   -t 15:8300  $node
+	else
 		sgdisk -n 11:0:+${MISC_SIZE}M                 -c 11:"misc"          -t 11:8300  $node
 		sgdisk -n 12:0:+${METADATA_SIZE}M             -c 12:"metadata"      -t 12:8300  $node
 		sgdisk -n 13:0:+${PRESISTDATA_SIZE}M          -c 13:"presistdata"   -t 13:8300  $node
-	else
-		sgdisk -n 9:0:+${MISC_SIZE}M                  -c 9:"misc"           -t 9:8300  $node
-		sgdisk -n 10:0:+${METADATA_SIZE}M             -c 10:"metadata"      -t 10:8300  $node
-		sgdisk -n 11:0:+${PRESISTDATA_SIZE}M          -c 11:"presistdata"   -t 11:8300  $node
 	fi
 	if [[ "${dynamic_img}" = false ]]; then
-		sgdisk -n 14:0:+${VENDOR_ROM_SIZE}M           -c 14:"vendor_a"      -t 14:8300  $node
-		sgdisk -n 15:0:+${VENDOR_ROM_SIZE}M           -c 15:"vendor_b"      -t 15:8300  $node
-		sgdisk -n 16:0:+${PRODUCT_ROM_SIZE}M          -c 16:"product_a"     -t 16:8300 $node
-		sgdisk -n 17:0:+${PRODUCT_ROM_SIZE}M          -c 17:"product_b"     -t 17:8300 $node
-		sgdisk -n 18:0:+${data_size}M                 -c 18:"userdata"      -t 18:8300 $node
-		sgdisk -n 19:0:+${FBMISC_SIZE}M               -c 19:"fbmisc"        -t 19:8300 $node
-		sgdisk -n 20:0:+${VBMETA_SIZE}M               -c 20:"vbmeta_a"      -t 20:8300 $node
-		sgdisk -n 21:0:+${VBMETA_SIZE}M               -c 21:"vbmeta_b"      -t 21:8300 $node
+		sgdisk -n 16:0:+${VENDOR_ROM_SIZE}M           -c 16:"vendor_a"      -t 16:8300  $node
+		sgdisk -n 17:0:+${VENDOR_ROM_SIZE}M           -c 17:"vendor_b"      -t 17:8300  $node
+		sgdisk -n 18:0:+${PRODUCT_ROM_SIZE}M          -c 18:"product_a"     -t 18:8300  $node
+		sgdisk -n 19:0:+${PRODUCT_ROM_SIZE}M          -c 19:"product_b"     -t 19:8300  $node
+		sgdisk -n 20:0:+${data_size}M                 -c 20:"userdata"      -t 20:8300  $node
+		sgdisk -n 21:0:+${FBMISC_SIZE}M               -c 21:"fbmisc"        -t 21:8300  $node
+		sgdisk -n 22:0:+${VBMETA_SIZE}M               -c 22:"vbmeta_a"      -t 22:8300  $node
+		sgdisk -n 23:0:+${VBMETA_SIZE}M               -c 23:"vbmeta_b"      -t 23:8300  $node
 	else
-		sgdisk -n 12:0:+${SUPER_ROM_SIZE}M            -c 12:"super"         -t 12:8300  $node
-		sgdisk -n 13:0:+${data_size}M                 -c 13:"userdata"      -t 13:8300 $node
-		sgdisk -n 14:0:+${FBMISC_SIZE}M               -c 14:"fbmisc"        -t 14:8300 $node
-		sgdisk -n 15:0:+${VBMETA_SIZE}M               -c 15:"vbmeta_a"      -t 15:8300 $node
-		sgdisk -n 16:0:+${VBMETA_SIZE}M               -c 16:"vbmeta_b"      -t 16:8300 $node
+		sgdisk -n 14:0:+${SUPER_ROM_SIZE}M            -c 14:"super"         -t 14:8300  $node
+		sgdisk -n 15:0:+${data_size}M                 -c 15:"userdata"      -t 15:8300  $node
+		sgdisk -n 16:0:+${FBMISC_SIZE}M               -c 16:"fbmisc"        -t 16:8300  $node
+		sgdisk -n 17:0:+${VBMETA_SIZE}M               -c 17:"vbmeta_a"      -t 17:8300  $node
+		sgdisk -n 18:0:+${VBMETA_SIZE}M               -c 18:"vbmeta_b"      -t 18:8300  $node
 		if [[ "${soc_name}" = *"mx8qm"* ]]; then
-			sgdisk -n 17:0:+${FIRMWARE_SIZE}M     -c 17:"firmware"      -t 17:8300 $node
+			sgdisk -n 19:0:+${FIRMWARE_SIZE}M     -c 19:"firmware"      -t 19:8300  $node
 		fi
 	fi
 
@@ -437,9 +446,22 @@ function format_android
 	echo
 	if [[ "${dynamic_img}" = false ]]; then
 		blue_underlined_bold_echo "Erasing presistdata partition"
+		dd if=/dev/zero of=${node}${part}15 bs=1M count=${PRESISTDATA_SIZE} conv=fsync
+		blue_underlined_bold_echo "Erasing fbmisc partition"
+		dd if=/dev/zero of=${node}${part}21 bs=1M count=${FBMISC_SIZE} conv=fsync
+		blue_underlined_bold_echo "Erasing misc partition"
+		dd if=/dev/zero of=${node}${part}13 bs=1M count=${MISC_SIZE} conv=fsync
+		blue_underlined_bold_echo "Formatting metadata partition"
+		${make_f2fs} -l metadata -S $((${METADATA_SIZE}*1024*1024)) -g android /tmp/TemporaryFile_${randome_part}
+		simg2img /tmp/TemporaryFile_${randome_part} ${node}${part}14
+		blue_underlined_bold_echo "Formatting userdata partition"
+		${make_f2fs} -l data -S $((${data_size}*1024*1024)) -g android /tmp/TemporaryFile_${randome_part}
+		simg2img /tmp/TemporaryFile_${randome_part} ${node}${part}20
+	else
+		blue_underlined_bold_echo "Erasing presistdata partition"
 		dd if=/dev/zero of=${node}${part}13 bs=1M count=${PRESISTDATA_SIZE} conv=fsync
 		blue_underlined_bold_echo "Erasing fbmisc partition"
-		dd if=/dev/zero of=${node}${part}19 bs=1M count=${FBMISC_SIZE} conv=fsync
+		dd if=/dev/zero of=${node}${part}16 bs=1M count=${FBMISC_SIZE} conv=fsync
 		blue_underlined_bold_echo "Erasing misc partition"
 		dd if=/dev/zero of=${node}${part}11 bs=1M count=${MISC_SIZE} conv=fsync
 		blue_underlined_bold_echo "Formatting metadata partition"
@@ -447,24 +469,11 @@ function format_android
 		simg2img /tmp/TemporaryFile_${randome_part} ${node}${part}12
 		blue_underlined_bold_echo "Formatting userdata partition"
 		${make_f2fs} -l data -S $((${data_size}*1024*1024)) -g android /tmp/TemporaryFile_${randome_part}
-		simg2img /tmp/TemporaryFile_${randome_part} ${node}${part}18
-	else
-		blue_underlined_bold_echo "Erasing presistdata partition"
-		dd if=/dev/zero of=${node}${part}11 bs=1M count=${PRESISTDATA_SIZE} conv=fsync
-		blue_underlined_bold_echo "Erasing fbmisc partition"
-		dd if=/dev/zero of=${node}${part}14 bs=1M count=${FBMISC_SIZE} conv=fsync
-		blue_underlined_bold_echo "Erasing misc partition"
-		dd if=/dev/zero of=${node}${part}9 bs=1M count=${MISC_SIZE} conv=fsync
-		blue_underlined_bold_echo "Formatting metadata partition"
-		${make_f2fs} -l metadata -S $((${METADATA_SIZE}*1024*1024)) -g android /tmp/TemporaryFile_${randome_part}
-		simg2img /tmp/TemporaryFile_${randome_part} ${node}${part}10
-		blue_underlined_bold_echo "Formatting userdata partition"
-		${make_f2fs} -l data -S $((${data_size}*1024*1024)) -g android /tmp/TemporaryFile_${randome_part}
-		simg2img /tmp/TemporaryFile_${randome_part} ${node}${part}13
+		simg2img /tmp/TemporaryFile_${randome_part} ${node}${part}15
 
 		if [[ "${soc_name}" = *"mx8qm"* ]]; then
 			blue_underlined_bold_echo "Formating firmware partition"
-			mkfs.ext4 -F ${node}${part}17 -Lfirmware
+			mkfs.ext4 -F ${node}${part}19 -Lfirmware
 		fi
 	fi
 	rm /tmp/TemporaryFile_*
@@ -474,70 +483,76 @@ function format_android
 function install_android
 {
 	echo
+	blue_underlined_bold_echo "Installing Android bootloader image: $uboot_proper_file"
+	dd if=${imagesdir}/${uboot_proper_file} of=${node}${part}1 bs=1k
+	dd if=${imagesdir}/${uboot_proper_file} of=${node}${part}2 bs=1k
+	sync
+
+	echo
 	blue_underlined_bold_echo "Installing Android dtbo image: $dtboimage_file"
-	dd if=${imagesdir}/${dtboimage_file} of=${node}${part}1 bs=1M
-	dd if=${imagesdir}/${dtboimage_file} of=${node}${part}2 bs=1M
+	dd if=${imagesdir}/${dtboimage_file} of=${node}${part}3 bs=1M
+	dd if=${imagesdir}/${dtboimage_file} of=${node}${part}4 bs=1M
 	sync
 
 	echo
 	blue_underlined_bold_echo "Installing Android boot image: $bootimage_file"
-	dd if=${imagesdir}/${bootimage_file} of=${node}${part}3 bs=1M
-	dd if=${imagesdir}/${bootimage_file} of=${node}${part}4 bs=1M
+	dd if=${imagesdir}/${bootimage_file} of=${node}${part}5 bs=1M
+	dd if=${imagesdir}/${bootimage_file} of=${node}${part}6 bs=1M
 	sync
 
 	echo
 	blue_underlined_bold_echo "Installing Android init_boot image: $init_boot_file"
-	dd if=${imagesdir}/${init_boot_file} of=${node}${part}5 bs=1M
-	dd if=${imagesdir}/${init_boot_file} of=${node}${part}6 bs=1M
+	dd if=${imagesdir}/${init_boot_file} of=${node}${part}7 bs=1M
+	dd if=${imagesdir}/${init_boot_file} of=${node}${part}8 bs=1M
 	sync
 
 	echo
 	blue_underlined_bold_echo "Installing Android vendor boot image: $vendor_bootimage_file"
-	dd if=${imagesdir}/${vendor_bootimage_file} of=${node}${part}7 bs=1M
-	dd if=${imagesdir}/${vendor_bootimage_file} of=${node}${part}8 bs=1M
+	dd if=${imagesdir}/${vendor_bootimage_file} of=${node}${part}9 bs=1M
+	dd if=${imagesdir}/${vendor_bootimage_file} of=${node}${part}10 bs=1M
 	sync
 
 	if [[ "${dynamic_img}" = false ]]; then
 		echo
 		blue_underlined_bold_echo "Installing Android system image: $systemimage_file"
-		simg2img ${imagesdir}/${systemimage_file} ${node}${part}9
-		simg2img ${imagesdir}/${systemimage_file} ${node}${part}10
+		simg2img ${imagesdir}/${systemimage_file} ${node}${part}11
+		simg2img ${imagesdir}/${systemimage_file} ${node}${part}12
 		sync;
 
 		echo
 		blue_underlined_bold_echo "Installing Android vendor image: $vendorimage_file"
-		simg2img ${imagesdir}/${vendorimage_file} ${node}${part}14
-		simg2img ${imagesdir}/${vendorimage_file} ${node}${part}15
+		simg2img ${imagesdir}/${vendorimage_file} ${node}${part}16
+		simg2img ${imagesdir}/${vendorimage_file} ${node}${part}17
 		sync;
 
 		echo
 		blue_underlined_bold_echo "Installing Android product image: $productimage_file"
-		simg2img ${imagesdir}/${productimage_file} ${node}${part}16
-		simg2img ${imagesdir}/${productimage_file} ${node}${part}17
+		simg2img ${imagesdir}/${productimage_file} ${node}${part}18
+		simg2img ${imagesdir}/${productimage_file} ${node}${part}19
 		sync;
 
 		echo
 		blue_underlined_bold_echo "Installing Android vbmeta image: $vbmeta_file"
-		dd if=${imagesdir}/${vbmeta_file} of=${node}${part}20 bs=1M
-		dd if=${imagesdir}/${vbmeta_file} of=${node}${part}21 bs=1M
+		dd if=${imagesdir}/${vbmeta_file} of=${node}${part}22 bs=1M
+		dd if=${imagesdir}/${vbmeta_file} of=${node}${part}23 bs=1M
 		sync;
 	else
 		echo
 		blue_underlined_bold_echo "Installing Android super image: $superimage_file"
-		simg2img ${imagesdir}/${superimage_file} ${node}${part}12
+		simg2img ${imagesdir}/${superimage_file} ${node}${part}14
 		sync;
 
 		echo
 		blue_underlined_bold_echo "Installing Android vbmeta image: $vbmeta_file"
-		dd if=${imagesdir}/${vbmeta_file} of=${node}${part}15 bs=1M
-		dd if=${imagesdir}/${vbmeta_file} of=${node}${part}16 bs=1M
+		dd if=${imagesdir}/${vbmeta_file} of=${node}${part}17 bs=1M
+		dd if=${imagesdir}/${vbmeta_file} of=${node}${part}18 bs=1M
 		sync;
 
 		if [[ "${soc_name}" = *"mx8qm"* ]]; then
 			echo
 			blue_underlined_bold_echo "Installing firmware image"
 			mkdir -p /tmp/firmware_mnt
-			mount ${node}${part}17 /tmp/firmware_mnt
+			mount ${node}${part}19 /tmp/firmware_mnt
 			mkdir -p /tmp/firmware_mnt/firmware
 			cp -ar ${imagesdir}/vendor/firmware/hdp /tmp/firmware_mnt/firmware
 			sync;
