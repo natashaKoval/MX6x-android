@@ -6,8 +6,8 @@ TARGET_BOOTLOADER_CONFIG := \
 	imx8mp-var-dart:imx8mp_var_dart_android_defconfig \
 	imx8mp-var-dart-trusty-secure-unlock-dual:imx8mp_var_dart_android_trusty_secure_unlock_dual_defconfig \
 	imx8mp-var-dart-dual:imx8mp_var_dart_android_dual_defconfig \
-	imx8mp-var-dart-trusty-dual:imx8mp_var_dart_android_trusty_dual_defconfig \
-	imx8mp-var-dart-uuu:imx8mp_var_dart_android_uuu_defconfig
+	imx8mp-var-dart-uuu:imx8mp_var_dart_android_uuu_defconfig \
+	imx8mp-var-dart-trusty-dual:imx8mp_var_dart_android_trusty_dual_defconfig
 
 ifeq ($(LOADABLE_KERNEL_MODULE),true)
 TARGET_KERNEL_DEFCONFIG := gki_defconfig
