@@ -27,8 +27,10 @@ SDPV: jump
 FB: ucmd setenv fastboot_dev mmc
 FB: ucmd setenv mmcdev ${emmc_dev}
 FB: ucmd mmc dev ${emmc_dev}
-FB: flash bootloader0 u-boot-imx8mp-var-dart.imx
-FB: flash gpt partition-table.img
+FB: flash bootloader0 spl-imx8mp-var-dart-dual.bin
+FB: flash gpt partition-table-dual.img
+FB: flash bootloader_a bootloader-imx8mp-var-dart-dual.img
+FB: flash bootloader_b bootloader-imx8mp-var-dart-dual.img
 FB: flash dtbo_a dtbo-imx8mp-var-som-1.x-symphony-basler-isi0.img
 FB: flash dtbo_b dtbo-imx8mp-var-som-1.x-symphony-basler-isi0.img
 FB: flash boot_a boot-imx.img
