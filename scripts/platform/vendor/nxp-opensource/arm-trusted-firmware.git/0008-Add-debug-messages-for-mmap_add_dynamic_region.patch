@@ -1,0 +1,130 @@
+From 2f9ac031622e486e4e5e1db69c1fc9ad1cbba363 Mon Sep 17 00:00:00 2001
+From: Natalia Kovalenko <natasha.k@variscite.com>
+Date: Sun, 17 Mar 2024 18:29:03 +0100
+Subject: [PATCH] Add debug messages for mmap_add_dynamic_region
+
+---
+ lib/xlat_tables_v2/xlat_tables_core.c | 46 ++++++++++++++++++++-------
+ 1 file changed, 35 insertions(+), 11 deletions(-)
+
+diff --git a/lib/xlat_tables_v2/xlat_tables_core.c b/lib/xlat_tables_v2/xlat_tables_core.c
+index de5718454..50955c239 100644
+--- a/lib/xlat_tables_v2/xlat_tables_core.c
++++ b/lib/xlat_tables_v2/xlat_tables_core.c
+@@ -687,28 +687,39 @@ static int mmap_add_region_check(const xlat_ctx_t *ctx, const mmap_region_t *mm)
+ 	uintptr_t end_va = base_va + size - 1U;
+ 
+ 	if (!IS_PAGE_ALIGNED(base_pa) || !IS_PAGE_ALIGNED(base_va) ||
+-			!IS_PAGE_ALIGNED(size))
++			!IS_PAGE_ALIGNED(size)) {
++		ERROR("page is not ALIGNED\n");
+ 		return -EINVAL;
++	}
+ 
+ 	if ((granularity != XLAT_BLOCK_SIZE(1U)) &&
+ 		(granularity != XLAT_BLOCK_SIZE(2U)) &&
+ 		(granularity != XLAT_BLOCK_SIZE(3U))) {
++		ERROR("granularity check failed\n");
+ 		return -EINVAL;
+ 	}
+ 
+ 	/* Check for overflows */
+-	if ((base_pa > end_pa) || (base_va > end_va))
++	if ((base_pa > end_pa) || (base_va > end_va)) {
++		ERROR("overflow case 1\n");
+ 		return -ERANGE;
++	}
+ 
+-	if (end_va > ctx->va_max_address)
++	if (end_va > ctx->va_max_address) {
++		ERROR("overflow case 2\n");
+ 		return -ERANGE;
++	}
+ 
+-	if (end_pa > ctx->pa_max_address)
++	if (end_pa > ctx->pa_max_address) {
++		ERROR("overflow case 3\n");
+ 		return -ERANGE;
++	}
+ 
+ 	/* Check that there is space in the ctx->mmap array */
+-	if (ctx->mmap[ctx->mmap_num - 1].size != 0U)
++	if (ctx->mmap[ctx->mmap_num - 1].size != 0U) {
++		ERROR("no space in the ctx->mmap array\n");
+ 		return -ENOMEM;
++	}
+ 
+ 	/* Check for PAs and VAs overlaps with all other regions */
+ 	for (const mmap_region_t *mm_cursor = ctx->mmap;
+@@ -737,16 +748,22 @@ static int mmap_add_region_check(const xlat_ctx_t *ctx, const mmap_region_t *mm)
+ 
+ #if PLAT_XLAT_TABLES_DYNAMIC
+ 			if (((mm->attr & MT_DYNAMIC) != 0U) ||
+-			    ((mm_cursor->attr & MT_DYNAMIC) != 0U))
++			    ((mm_cursor->attr & MT_DYNAMIC) != 0U)) {
++				ERROR("Region fully overlaps another one, (mm->attr & MT_DYNAMIC) != 0U\n");
+ 				return -EPERM;
++			}
+ #endif /* PLAT_XLAT_TABLES_DYNAMIC */
+ 			if ((mm_cursor->base_va - mm_cursor->base_pa) !=
+-							(base_va - base_pa))
++							(base_va - base_pa)) {
++				ERROR("Region fully overlaps another one in an invalid way 2\n");
+ 				return -EPERM;
++			}
+ 
+ 			if ((base_va == mm_cursor->base_va) &&
+-						(size == mm_cursor->size))
++						(size == mm_cursor->size)) {
++				ERROR("Region fully overlaps another one in an invalid way 3\n");
+ 				return -EPERM;
++			}
+ 
+ 		} else {
+ 			/*
+@@ -763,8 +780,10 @@ static int mmap_add_region_check(const xlat_ctx_t *ctx, const mmap_region_t *mm)
+ 			bool separated_va = (end_va < mm_cursor->base_va) ||
+ 				(base_va > mm_cursor_end_va);
+ 
+-			if (!separated_va || !separated_pa)
++			if (!separated_va || !separated_pa) {
++				ERROR("Partial overlaps\n");
+ 				return -EPERM;
++			}
+ 		}
+ 	}
+ 
+@@ -965,8 +984,10 @@ int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
+ 	mm->attr |= MT_DYNAMIC;
+ 
+ 	ret = mmap_add_region_check(ctx, mm);
+-	if (ret != 0)
++	if (ret != 0) {
++		ERROR("mmap_add_region_check() failed. error %d\n", ret);
+ 		return ret;
++	}
+ 
+ 	/*
+ 	 * Find the adequate entry in the mmap array in the same way done for
+@@ -1017,8 +1038,10 @@ int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
+ 			 * Check if the mapping function actually managed to map
+ 			 * anything. If not, just return now.
+ 			 */
+-			if (mm->base_va >= end_va)
++			if (mm->base_va >= end_va) {
++				ERROR("mm->base_va >= end_va\n");
+ 				return -ENOMEM;
++			}
+ 
+ 			/*
+ 			 * Something went wrong after mapping some table
+@@ -1037,6 +1060,7 @@ int mmap_add_dynamic_region_ctx(xlat_ctx_t *ctx, mmap_region_t *mm)
+ 			xlat_clean_dcache_range((uintptr_t)ctx->base_table,
+ 				ctx->base_table_entries * sizeof(uint64_t));
+ #endif
++			ERROR("Something went wrong after mapping some table entries\n");
+ 			return -ENOMEM;
+ 		}
+ 
+-- 
+2.34.1
