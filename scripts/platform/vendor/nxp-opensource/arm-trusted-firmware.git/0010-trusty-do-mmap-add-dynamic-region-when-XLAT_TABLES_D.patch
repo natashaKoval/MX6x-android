@@ -1,0 +1,48 @@
+From e768884de48142cc563d0c90afa7a48070daca83 Mon Sep 17 00:00:00 2001
+From: Natalia Kovalenko <natasha.k@variscite.com>
+Date: Mon, 18 Mar 2024 13:25:16 +0100
+Subject: [PATCH] trusty: do mmap add dynamic region when XLAT_TABLES_DYNAMIC
+ supported
+
+Add as well LATE_MAPPED_BL32 flag check before to map dynamically bl32
+first page.
+
+Signed-off-by: Natalia Kovalenko <natasha.k@variscite.com>
+---
+ services/spd/trusty/trusty.c | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+diff --git a/services/spd/trusty/trusty.c b/services/spd/trusty/trusty.c
+index 7de6633e1..1b1627b5a 100644
+--- a/services/spd/trusty/trusty.c
++++ b/services/spd/trusty/trusty.c
+@@ -443,13 +443,14 @@ static int32_t trusty_setup(void)
+ 	}
+ 
+ #ifndef PLAT_imx8mq
++#if defined(PLAT_XLAT_TABLES_DYNAMIC) && defined(LATE_MAPPED_BL32)
+ 	/* memmap first page of trusty's code memory before peeking */
+ 	ret = mmap_add_dynamic_region(ep_info->pc, /* PA */
+ 			ep_info->pc, /* VA */
+ 			PAGE_SIZE, /* size */
+ 			MT_SECURE | MT_RW_DATA); /* attrs */
+ 	assert(ret == 0);
+-
++#endif
+ 	/* peek into trusty's code to see if we have a 32-bit or 64-bit image */
+ 	instr = *(uint32_t *)ep_info->pc;
+ 
+@@ -462,9 +463,10 @@ static int32_t trusty_setup(void)
+ 		ERROR("trusty: Found unknown image, 0x%x\n", instr);
+ 		return -1;
+ 	}
+-
++#if defined(PLAT_XLAT_TABLES_DYNAMIC) && defined(LATE_MAPPED_BL32)
+ 	/* unmap trusty's memory page */
+ 	(void)mmap_remove_dynamic_region(ep_info->pc, PAGE_SIZE);
++#endif
+ #endif
+ 
+ 	/* configure tzc380 for imx8m */
+-- 
+2.34.1
