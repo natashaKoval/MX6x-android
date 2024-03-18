@@ -1,0 +1,58 @@
+From 3e8733eb1558102ce094ed51b4fee778f56ad6fe Mon Sep 17 00:00:00 2001
+From: Natalia Kovalenko <natasha.k@variscite.com>
+Date: Sun, 17 Mar 2024 22:54:06 +0100
+Subject: [PATCH] imx_hab: imx8mp: Add DRAM2 dynamic mapping
+
+---
+ plat/imx/imx8m/imx8mp/imx8mp_bl31_setup.c |  1 +
+ plat/imx/imx8m/imx_hab.c                  | 15 +++++++++++++--
+ 2 files changed, 14 insertions(+), 2 deletions(-)
+
+diff --git a/plat/imx/imx8m/imx8mp/imx8mp_bl31_setup.c b/plat/imx/imx8m/imx8mp/imx8mp_bl31_setup.c
+index 807b75589..7559376ae 100644
+--- a/plat/imx/imx8m/imx8mp/imx8mp_bl31_setup.c
++++ b/plat/imx/imx8m/imx8mp/imx8mp_bl31_setup.c
+@@ -50,6 +50,7 @@ static const mmap_region_t imx_mmap[] = {
+ #endif
+ #ifndef PLAT_XLAT_TABLES_DYNAMIC
+ 	DRAM_MAP,
++	MAP_REGION_FLAT(IMX_DRAM2_BASE, 0x40000000, MT_MEMORY | MT_RW | MT_NS),
+ #endif
+ 	ROM_MAP, VPU_BLK_CTL_MAP, TCM_MAP,
+ 	{0},
+diff --git a/plat/imx/imx8m/imx_hab.c b/plat/imx/imx8m/imx_hab.c
+index 4aecf36db..758d69ce4 100644
+--- a/plat/imx/imx8m/imx_hab.c
++++ b/plat/imx/imx8m/imx_hab.c
+@@ -115,8 +115,14 @@ int imx_hab_handler(uint32_t smc_fid,
+ 			return SMC_UNK;
+ 		}
+ 	}
++#if defined(PLAT_imx8mp)
++	if (mmap_add_dynamic_region(IMX_DRAM2_BASE, IMX_DRAM2_BASE,
++					IMX_DRAM2_SIZE, MT_MEMORY | MT_RW | MT_NS)) {
++		ERROR("%s: Failed in mmap_add_dynamic_region!\n", __func__);
++		return SMC_UNK;
++	}
++#endif
+ #endif
+-
+ 	switch (x1) {
+ 	case IMX_SIP_HAB_ENTRY:
+ 		ret = g_hab_rvt_api->entry();
+@@ -167,7 +173,12 @@ int imx_hab_handler(uint32_t smc_fid,
+ 			return SMC_UNK;
+ 		}
+ 	}
++#if defined(PLAT_imx8mp)
++        if (mmap_remove_dynamic_region(IMX_DRAM2_BASE, IMX_DRAM2_SIZE)) {
++                ERROR("%s: Failed in mmap_remove_dynamic_region!\n", __func__);
++                return SMC_UNK;
++        }
++#endif
+ #endif
+-
+ 	return ret;
+ }
+-- 
+2.34.1
