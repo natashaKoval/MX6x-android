@@ -39,6 +39,7 @@ readonly VARISCITE_SH_DIR="${SCRIPT_POINT}/sh"
 VENDOR_BASE_DIR=${ANDROID_DIR}/vendor/variscite
 LIBBT=$(readlink -f "${ANDROID_DIR}/hardware/broadcom/libbt")
 SEPOLICY=$(readlink -f "${ANDROID_DIR}/system/sepolicy")
+BLUETOOTH=$(readlink -f "${ANDROID_DIR}/packages/modules/Bluetooth")
 
 SC_MX8_FAMILY=$1
 readonly SCFW_BRANCH="1.6.0"
@@ -169,7 +170,7 @@ do
 	cd ${ANDROID_DIR}/${_git_p}/ > /dev/null
 
 	if [[ `git branch --list $_EXTPARAM_BRANCH` ]] ; then
-		if [[ ${PWD} == ${LIBBT} ]] || [[ ${PWD} == ${SEPOLICY} ]]; then
+		if [[ ${PWD} == ${LIBBT} ]] || [[ ${PWD} == ${SEPOLICY} ]] || [[ ${PWD} == ${BLUETOOTH} ]]; then
 			git checkout tags/android-14.0.0_r17
 		else
 			git checkout tags/${BASE_BRANCH_NAME}
