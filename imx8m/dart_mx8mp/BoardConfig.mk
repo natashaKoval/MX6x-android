@@ -20,6 +20,7 @@ TARGET_USES_HWC2 := true
 TARGET_HAVE_VULKAN := true
 CFG_SECURE_IOCTRL_REGS := true
 ENABLE_SEC_DMABUF_HEAP := true
+TARGET_USES_BCM_WIFI := false
 
 SOONG_CONFIG_IMXPLUGIN += \
                         BOARD_VPU_TYPE \
@@ -116,10 +117,13 @@ DEVICE_MATRIX_FILE := $(NXP_DEVICE_PATH)/compatibility_matrix.xml
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := $(NXP_DEVICE_PATH)/device_framework_matrix.xml
 
 # -------@block_wifi-------
+ifeq ($(TARGET_USES_BCM_WIFI),true)
 # Sterling LWB / LWB5 WiFi
 BOARD_WLAN_DEVICE            := bcmdhd
-# NXP 8997 WIFI
-#BOARD_WLAN_DEVICE            := nxp
+else
+# NXP 8987 WIFI
+BOARD_WLAN_DEVICE            := nxp
+endif
 WPA_SUPPLICANT_VERSION       := VER_0_8_X
 BOARD_WPA_SUPPLICANT_DRIVER  := NL80211
 BOARD_HOSTAPD_DRIVER         := NL80211
@@ -129,11 +133,12 @@ BOARD_WPA_SUPPLICANT_PRIVATE_LIB        := lib_driver_cmd_$(BOARD_WLAN_DEVICE)
 WIFI_HIDL_FEATURE_DUAL_INTERFACE := true
 
 # -------@block_bluetooth-------
-# Sterling LWB / LWB5 BT via HCI UART driver
+# Sterling LWB / LWB5 or NXP 8987 BT via HCI UART driver
 BOARD_BLUETOOTH_BDROID_BUILDCFG_INCLUDE_DIR := $(IMX_DEVICE_PATH)/bluetooth
 
-# NXP 8997 BT
-#BOARD_HAVE_BLUETOOTH_NXP := true
+ifeq ($(TARGET_USES_BCM_WIFI),false)
+BOARD_HAVE_BLUETOOTH_NXP := true
+endif
 
 # -------@block_sensor-------
 #BOARD_USE_SENSOR_FUSION := true
@@ -176,6 +181,12 @@ ifeq ($(TARGET_USE_DYNAMIC_PARTITIONS),true)
 endif
 
 ALL_DEFAULT_INSTALLED_MODULES += $(BOARD_VENDOR_KERNEL_MODULES)
+
+ifeq ($(TARGET_USES_BCM_WIFI),false)
+# wifi config
+BOARD_BOOTCONFIG += androidboot.wificountrycode=CN
+BOARD_KERNEL_CMDLINE += moal.mod_para=wifi_mod_para_sd8987.conf
+endif
 
 # -------@block_sepolicy-------
 BOARD_SEPOLICY_DIRS := \

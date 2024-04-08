@@ -382,10 +382,11 @@ PRODUCT_PACKAGES += \
 PRODUCT_PACKAGES += \
     WifiOverlay
 
-# nxp 8997 wifi and bluetooth combo Firmware
+# NXP 8987 Wifi and Bluetooth Combo Firmware
 PRODUCT_COPY_FILES += \
-    vendor/nxp/imx-firmware/nxp/FwImage_8997/pcieuart8997_combo_v4.bin:vendor/firmware/pcieuart8997_combo_v4.bin \
-    vendor/nxp/imx-firmware/nxp/android_wifi_mod_para.conf:vendor/firmware/wifi_mod_para.conf
+    vendor/nxp/imx-firmware/nxp/FwImage_8987/sdiouart8987_combo_v0.bin:vendor/firmware/sdiouart8987_combo_v0.bin \
+    vendor/nxp/imx-firmware/nxp/FwImage_IW612_SD/sduart_nw61x_v1.bin.se:vendor/firmware/sduart_nw61x_v1.bin.se \
+    vendor/nxp/imx-firmware/nxp/android_wifi_mod_para.conf:vendor/firmware/wifi_mod_para_sd8987.conf
 
 # Sterling LWB / LWB5 wifi and bluetooth combo Firmware
 PRODUCT_COPY_FILES += \
@@ -417,7 +418,7 @@ PRODUCT_COPY_FILES += \
 PRODUCT_PACKAGES += \
     android.hardware.bluetooth@1.1-service.btlinux
 
-#nxp 8997 Bluetooth vendor config
+#nxp 8987 Bluetooth vendor config
 PRODUCT_PACKAGES += \
     bt_vendor.conf
 
