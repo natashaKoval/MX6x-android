@@ -23,6 +23,7 @@ MXMWIFI_PATH := vendor/nxp-opensource/nxp-mwifiex
 RESTRICTED_APP_PATH := vendor/nxp-private
 IMX_SECURITY_PATH := vendor/nxp-private/security
 
+VARISCITE_PATH := vendor/variscite
 BCM_FIRMWARE_PATH := vendor/variscite/bcm_4343w_fw
 KERNEL_IMX_PATH := vendor/variscite
 UBOOT_IMX_PATH := vendor/variscite
