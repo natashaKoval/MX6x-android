@@ -27,6 +27,8 @@ else
 	exit 1
 fi
 
+TARGET_DTBS="imx8mp-var-dart-dt8mcustomboard.dtb imx8mp-var-som-symphony.dtb"
+
 build_m4_image()
 {
         :
@@ -60,17 +62,17 @@ build_imx_uboot()
 
 	make -C ${IMX_MKIMAGE_PATH}/imx-mkimage/ clean
 	if [ `echo $2 | rev | cut -d '-' -f1 | rev` = "dual" ]; then
-		make -C ${IMX_MKIMAGE_PATH}/imx-mkimage/ SOC=iMX8MP flash_evk_no_hdmi_dual_bootloader || exit 1
+		make -C ${IMX_MKIMAGE_PATH}/imx-mkimage/ SOC=iMX8MP dtbs="${TARGET_DTBS}" flash_evk_no_hdmi_dual_bootloader || exit 1
 		cp ${UBOOT_OUT}/arch/arm/dts/imx8mp-var-dart-dt8mcustomboard.dtb ${IMX_MKIMAGE_PATH}/imx-mkimage/iMX8M/
 		cp ${UBOOT_OUT}/arch/arm/dts/imx8mp-var-som-symphony.dtb ${IMX_MKIMAGE_PATH}/imx-mkimage/iMX8M/
-		make -C ${IMX_MKIMAGE_PATH}/imx-mkimage/ SOC=iMX8MP PRINT_FIT_HAB_OFFSET=0x0 print_fit_hab || exit 1
+		make -C ${IMX_MKIMAGE_PATH}/imx-mkimage/ SOC=iMX8MP dtbs="${TARGET_DTBS}" PRINT_FIT_HAB_OFFSET=0x0 print_fit_hab || exit 1
 		cp ${IMX_MKIMAGE_PATH}/imx-mkimage/iMX8M/flash.bin ${UBOOT_COLLECTION}/spl-$2.bin
 		cp ${IMX_MKIMAGE_PATH}/imx-mkimage/iMX8M/u-boot-ivt.itb ${UBOOT_COLLECTION}/bootloader-$2.img
 	else
-		make -C ${IMX_MKIMAGE_PATH}/imx-mkimage/ SOC=iMX8MP flash_evk || exit 1
+		make -C ${IMX_MKIMAGE_PATH}/imx-mkimage/ SOC=iMX8MP dtbs="${TARGET_DTBS}" flash_evk || exit 1
 		cp ${UBOOT_OUT}/arch/arm/dts/imx8mp-var-dart-dt8mcustomboard.dtb ${IMX_MKIMAGE_PATH}/imx-mkimage/iMX8M/
 		cp ${UBOOT_OUT}/arch/arm/dts/imx8mp-var-som-symphony.dtb ${IMX_MKIMAGE_PATH}/imx-mkimage/iMX8M/
-		make -C ${IMX_MKIMAGE_PATH}/imx-mkimage/ SOC=iMX8MP print_fit_hab || exit 1
+		make -C ${IMX_MKIMAGE_PATH}/imx-mkimage/ SOC=iMX8MP dtbs="${TARGET_DTBS}" print_fit_hab || exit 1
 		cp ${IMX_MKIMAGE_PATH}/imx-mkimage/iMX8M/flash.bin ${UBOOT_COLLECTION}/u-boot-$2.imx
 	fi
 }
