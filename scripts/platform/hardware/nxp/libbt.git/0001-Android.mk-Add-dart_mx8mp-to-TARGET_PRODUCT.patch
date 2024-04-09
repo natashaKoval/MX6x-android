@@ -1,0 +1,28 @@
+From 9dff9decac2957d97453ef9b56776406d5db9199 Mon Sep 17 00:00:00 2001
+From: Natalia Kovalenko <natasha.k@variscite.com>
+Date: Tue, 9 Apr 2024 14:02:10 +0200
+Subject: [PATCH] Android.mk: Add dart_mx8mp to TARGET_PRODUCT
+
+When BOARD_HAVE_BLUETOOTH_NXP is set to true, add libbt build rules
+of evk_8mp also for dart_mx8mp.
+
+Signed-off-by: Natalia Kovalenko <natasha.k@variscite.com>
+---
+ Android.mk | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/Android.mk b/Android.mk
+index ef65e76..5326ae6 100644
+--- a/Android.mk
++++ b/Android.mk
+@@ -72,7 +72,7 @@ LOCAL_MULTILIB := both
+ LOCAL_PROPRIETARY_MODULE := true
+ 
+ include $(BUILD_SHARED_LIBRARY)
+-ifeq ($(TARGET_PRODUCT), evk_8mp)
++ifeq ($(TARGET_PRODUCT),$(filter $(TARGET_PRODUCT),evk_8mp dart_mx8mp))
+     include $(LOCAL_PATH)/conf/nxp/evk_8mp/Android.mk
+ endif
+ ifeq ($(TARGET_PRODUCT), evk_8mq)
+-- 
+2.34.1
