@@ -545,7 +545,17 @@ function install_bootloader
 	echo
 	blue_underlined_bold_echo "Installing booloader"
 
-	dd if=${imagesdir}/${bootloader_file} of=$node bs=1k seek=${bootloader_offset} conv=fsync; sync
+	mmcblk=`echo $node | cut -d '/' -f3`
+	echo 0 > /sys/class/block/${mmcblk}boot0/force_ro
+
+	if [[ "${soc_name}" = *"mx8mm"* ]] || [[ "${soc_name}" = *"mx8mq"* ]]; then
+		dd if=${imagesdir}/${bootloader_file} of=${node}boot0 bs=1k seek=${bootloader_offset} conv=fsync; sync
+	else
+		dd if=${imagesdir}/${bootloader_file} of=${node}boot0 bs=1k conv=fsync; sync
+	fi
+
+	mmc bootpart enable 1 0 $node
+	echo 1 > /sys/class/block/${mmcblk}boot0/force_ro
 
 	echo
 	blue_underlined_bold_echo "Installing mcu demo image: $mcu_os_demo_file"
