@@ -66,6 +66,7 @@ else
   endif
 endif
 
+TARGET_IMX_KERNEL ?= true
 # These variables are used to specify the dtbo and boot images to include in the OTA package.
 # Modify the value of these variables to fit your requirement.
 BOARD_PREBUILT_DTBOIMAGE := $(OUT_DIR)/target/product/$(PRODUCT_DEVICE)/dtbo-imx8mp-var-dart-dt8mcustomboard.img
