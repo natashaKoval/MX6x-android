@@ -105,7 +105,9 @@ BOARD_VENDOR_KERNEL_MODULES +=     \
     $(KERNEL_OUT)/drivers/bluetooth/btbcm.ko \
     $(KERNEL_OUT)/drivers/bluetooth/btqca.ko \
     $(KERNEL_OUT)/drivers/bluetooth/hci_uart.ko \
-    $(KERNEL_OUT)/drivers/bluetooth/btnxpuart.ko
+    $(KERNEL_OUT)/drivers/bluetooth/btnxpuart.ko \
+    $(KERNEL_OUT)/drivers/rpmsg/imx_rpmsg_tty.ko \
+    $(KERNEL_OUT)/drivers/rpmsg/imx_rpmsg_pingpong.ko
 endif
 
 # CONFIG_TOUCHSCREEN_GOODIX: goodix_ts.ko, rm67199 mipi-panel touch driver module
@@ -278,6 +280,9 @@ BOARD_VENDOR_RAMDISK_KERNEL_MODULES +=     \
     $(TARGET_OUT_INTERMEDIATES)/VVCAM_OBJ/vvcam-isp.ko \
     $(KERNEL_OUT)/drivers/staging/media/imx/imx8-media-dev.ko
 endif
+
+BOARD_VENDOR_KERNEL_MODULES_BLOCKLIST_FILE := \
+    device/variscite/imx8m/dart_mx8mp/modules.blocklist
 
 # -------@block_memory-------
 #Enable this to config 1GB ddr on evk_imx8mp

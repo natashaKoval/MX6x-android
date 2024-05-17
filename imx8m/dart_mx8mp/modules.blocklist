@@ -1,0 +1,3 @@
+# List of modules not to load by init.insmod.sh
+blocklist imx_rpmsg_tty.ko
+blocklist imx_rpmsg_pingpong.ko
