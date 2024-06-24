@@ -1,0 +1,28 @@
+From 28c9c8a43e90fa5f36d4482375b33c8942ad322c Mon Sep 17 00:00:00 2001
+From: FrancescoFerraro <francesco.f@variscite.com>
+Date: Wed, 28 Feb 2024 09:57:58 +0100
+Subject: [PATCH 4/5] android-imx_device_fsl: export toolchains for building
+ Android images
+
+Signed-off-by: FrancescoFerraro <francesco.f@variscite.com>
+---
+ common/tools/imx-make.sh | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/common/tools/imx-make.sh b/common/tools/imx-make.sh
+index 3f5ac1c5..5ed2366f 100755
+--- a/common/tools/imx-make.sh
++++ b/common/tools/imx-make.sh
+@@ -145,6 +145,10 @@ product_path=${product_makefile%/*}
+ soc_path=${product_path%/*}
+ nxp_git_path=${soc_path%/*}
+ 
++export AARCH64_GCC_CROSS_COMPILE=$ANDROID_BUILD_TOP/prebuilts/gcc/linux-x86/aarch64/gcc-arm-9.2-2019.12-x86_64-aarch64-none-linux-gnu/bin/aarch64-none-linux-gnu-
++export CLANG_PATH=/opt/prebuilt-android-clang-var-d20e409261d6a
++export PATH=/opt/prebuilt-android-kernel-build-tools-var-e3f6a8c059b94/linux-x86/bin:$PATH
++
+ # if uboot is to be compiled, remove the UBOOT_COLLECTION directory
+ if [ -n "${build_bootloader}" ]; then
+     rm -rf ${OUT}/obj/UBOOT_COLLECTION
+-- 
+2.34.1

@@ -1,0 +1,28 @@
+From 37af847516a5113ec710cd3cefa75c23a30ae8fe Mon Sep 17 00:00:00 2001
+From: Sherry Sun <sherry.sun@nxp.com>
+Date: Fri, 4 Nov 2022 18:58:07 +0800
+Subject: [PATCH] mxm_wifiex: enable IW612 in mwifiex wifi driver
+
+Enable IW612 device in mwifiex wifi driver instead the standalone IW612
+wifi driver.
+
+Signed-off-by: Sherry Sun <sherry.sun@nxp.com>
+---
+ mxm_wifiex/wlan_src/Makefile | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/mxm_wifiex/wlan_src/Makefile b/mxm_wifiex/wlan_src/Makefile
+index f873d61..9348f50 100644
+--- a/mxm_wifiex/wlan_src/Makefile
++++ b/mxm_wifiex/wlan_src/Makefile
+@@ -45,7 +45,7 @@ CONFIG_USB8997=n
+ CONFIG_PCIE8997=y
+ CONFIG_SD8987=y
+ CONFIG_SD9097=n
+-CONFIG_SD9177=n
++CONFIG_SD9177=y
+ CONFIG_SD8801=y
+ CONFIG_USB8801=n
+ CONFIG_USB9097=n
+-- 
+2.34.1

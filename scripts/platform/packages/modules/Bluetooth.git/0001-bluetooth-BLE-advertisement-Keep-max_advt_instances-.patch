@@ -1,0 +1,81 @@
+From 5261bf3b56942ee5c67285fa6ab89a6efe2c718d Mon Sep 17 00:00:00 2001
+From: Natalia Kovalenko <natasha.k@variscite.com>
+Date: Thu, 28 Mar 2024 14:31:51 +0100
+Subject: [PATCH 1/2] =?UTF-8?q?bluetooth:=20BLE=20advertisement:=20Keep=20?=
+ =?UTF-8?q?max=5Fadvt=5Finstances=20values=20=E2=80=8B=E2=80=8Baligned?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+Bluetooth stack should have the same way to check for BLE multi advertising
+capability. Currently the Bluetooth native stack has this way to check
+this capability:
+
+from system/gd/hci/controller.cc:
+
+bool is_supported(OpCode op_code) {
+    switch (op_code) {
+<many lines redacted>
+    case OpCode::LE_MULTI_ADVT:
+        return vendor_capabilities_.max_advt_instances_ != 0;
+}
+
+and the Bluethooth system service has this one instead:
+
+from android/app/src/com/android/bluetooth/btservice/AdapterService.java
+
+private static final int MIN_ADVT_INSTANCES_FOR_MA = 5;
+
+private boolean isMultiAdvertisementSupported() {
+    AdapterService service = getService();
+    if (service == null) {
+        return false;
+    }
+
+    int val = service.mAdapterProperties.getNumOfAdvertisementInstancesSupported();
+    return val >= MIN_ADVT_INSTANCES_FOR_MA;
+}
+
+That's why android apk which checks this capability (like nRF connect) report:
+"Multiple Advertisement supported NO"
+but in native stack the code execution jumps into Multiple Advertisement support
+implementation when the controller_->GetVendorCapabilities().max_advt_instances_
+returns 1.
+
+This misalignment causes a crash when we try to enable BLE Advertiser.
+
+Keeping criteria unified when checking for BLE multi advertising capability
+will solve the issue.
+
+Change-Id: Id203746422fde0d794adb9d4afaa4f8cb3fad9e4
+Signed-off-by: Natalia Kovalenko <natasha.k@variscite.com>
+---
+ system/gd/hci/controller.cc | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff --git a/system/gd/hci/controller.cc b/system/gd/hci/controller.cc
+index da5986fcb7..be753db134 100644
+--- a/system/gd/hci/controller.cc
++++ b/system/gd/hci/controller.cc
+@@ -27,6 +27,10 @@
+ namespace bluetooth {
+ namespace hci {
+ 
++/* Keep this constant aligned with MIN_ADVT_INSTANCES_FOR_MA from
++ * android/app/src/com/android/bluetooth/btservice/AdapterService.java */
++static constexpr uint8_t min_advt_instances_for_ma = 5;
++
+ using os::Handler;
+ 
+ struct Controller::impl {
+@@ -824,7 +828,7 @@ struct Controller::impl {
+       case OpCode::LE_GET_VENDOR_CAPABILITIES:
+         return vendor_capabilities_.is_supported_ == 0x01;
+       case OpCode::LE_MULTI_ADVT:
+-        return vendor_capabilities_.max_advt_instances_ != 0x00;
++        return vendor_capabilities_.max_advt_instances_ >= min_advt_instances_for_ma;
+       case OpCode::LE_BATCH_SCAN:
+         return vendor_capabilities_.total_scan_results_storage_ != 0x00;
+       case OpCode::LE_ADV_FILTER:
+-- 
+2.34.1
