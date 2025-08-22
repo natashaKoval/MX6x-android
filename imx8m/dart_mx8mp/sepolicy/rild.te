@@ -1,0 +1,4 @@
+allow rild self:packet_socket { create bind write read };
+allow rild usb_serial_device:chr_file { read write open ioctl };
+allow hal_gnss_default rild:unix_stream_socket connectto;
+#allow rild device:chr_file { getattr read write open ioctl };

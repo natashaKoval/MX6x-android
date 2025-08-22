@@ -30,3 +30,14 @@
 /sys/devices/virtual/thermal/thermal_zone* trip_point_1_hyst 0660 system system
 
 /dev/dmabuf_imx                  0664   system      system
+
+/dev/ttyUSB*                     0660   radio       radio
+/dev/ttyACM*                     0660   radio       radio
+/dev/cdc-wdm*                    0660   radio       radio
+/dev/qcqmi*                      0660   radio       radio
+/dev/cdc-acm*                    0660   radio       radio
+/dev/mhi_DUN                     0660   radio       radio
+/dev/mhi_DIAG                    0660   radio       radio
+/dev/mhi_BHI                     0660   radio       radio
+/dev/mhi_LOOPBACK                0660   radio       radio
+/dev/mhi_QMI0                    0660   radio       radio

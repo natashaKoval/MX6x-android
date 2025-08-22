@@ -33,6 +33,59 @@ PRODUCT_COMPATIBLE_PROPERTY_OVERRIDE := true
 PRODUCT_VENDOR_PROPERTIES += ro.soc.manufacturer=nxp
 PRODUCT_VENDOR_PROPERTIES += ro.soc.model=IMX8MP
 PRODUCT_VENDOR_PROPERTIES += ro.crypto.metadata_init_delete_all_keys.enabled=true
+
+PRODUCT_PRODUCT_PROPERTIES += service.adb.tcp.port=5555
+
+# -------@block_radio-------
+PRODUCT_PROPERTY_OVERRIDES += ro.radio.noril=no
+#DEVICE_PRODUCT_COMPATIBILITY_MATRIX_FILE := device/variscite/imx8m/dart_mx8mp/device_framework_matrix_product.xml
+
+# Disable AOSP reference RIL
+BOARD_DISABLE_AOSP_REFERENCE_RIL := true
+
+PRODUCT_PACKAGES += \
+    libril \
+    libril.so \
+    libreference-ril.so \
+    android.hardware.gnss-service.example \
+    gps.default.so \
+
+PRODUCT_COPY_FILES += \
+    device/variscite/imx8m/dart_mx8mp/radio/Quectel_RIL/libgps/gps_cfg.inf:$(TARGET_COPY_OUT_VENDOR)/etc/gps_cfg.inf \
+    device/variscite/imx8m/dart_mx8mp/radio/Quectel_RIL/libril/ql-ril.conf:$(TARGET_COPY_OUT_VENDOR)/etc/ql-ril.conf
+
+# For APNs that match a known carrier, please include the corresponding carrier_id and keep apns-full-conf.xml in this device instead of sample.
+# You can find official carrier ID assignments in AOSP at the following link:
+# https://android.googlesource.com/platform/packages/providers/TelephonyProvider/+/master/assets/latest_carrier_id/carrier_list.textpb
+
+PRODUCT_COPY_FILES += \
+    device/sample/etc/apns-full-conf.xml:$(TARGET_COPY_OUT_PRODUCT)/etc/apns-conf.xml
+
+#device/variscite/imx8m/dart_mx8mp/radio/apns-conf.xml:system/etc/apns-conf.xml
+
+# The Quectel libril.so and libreference-ril.so depends on
+PRODUCT_PACKAGES += \
+    android.hardware.radio.config-V1-ndk    \
+    android.hardware.radio.data-V1-ndk      \
+    android.hardware.radio.messaging-V1-ndk \
+    android.hardware.radio.modem-V1-ndk     \
+    android.hardware.radio.network-V1-ndk   \
+    android.hardware.radio.sim-V1-ndk       \
+    android.hardware.radio.voice-V1-ndk
+
+PRODUCT_PACKAGES += \
+    Telecom \
+    TelephonyProvider \
+    telephony-common  \
+    TeleService \
+    messaging \
+    Dialer  \
+    rild
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    vendor.rild.libpath=/vendor/lib64/libreference-ril.so
+    vendor.rild.libargs=/dev/ttyUSB2
+
 # -------@block_treble-------
 PRODUCT_FULL_TREBLE_OVERRIDE := true
 
